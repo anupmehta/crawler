@@ -12,7 +12,20 @@ class Crawler
  
    public function getMarkup($url)
     {
-      return file_get_contents($url);
+	// Create a stream
+		$opts = array(
+		  'http'=>array(
+			'method'=>"GET",
+			'header'=>"Accept-language: en\r\n" .
+					  "Cookie: foo=bar\r\n"
+		  )
+		);
+
+		$context = stream_context_create($opts);
+
+		// Open the file using the HTTP headers set above
+		$file = file_get_contents($url, false, $context);
+		return $file;
     }
  
    public function get($type)
@@ -52,7 +65,7 @@ if(substr($url, 0, 4) != 'http') $url = 'http://'.$url;
 //Create an object of class Crawler.
 $crawl = new Crawler($url);
 //Call the function get() with argument "links"
-$links  = $crawl->get('links');
+$links  = array_unique($crawl->get('links'));
 
 if(!empty($links))
 {
@@ -61,21 +74,40 @@ if(!empty($links))
     {
       if($link[0] == "'") $link = substr($link,1,-1);
       if($link[0] == "/") $link = $_POST['url'].$link;
-      makeCrawl($link);//call function recursively to get all hyperlinks of website pages
+     $etst[$link] =  makeCrawl($link);//call function recursively to get all hyperlinks of website pages
     }
+	echo "<pre>";print_r($etst);die;
+	foreach($etst as $key=>$values):
+		//echo "<h3>Page Url: ".$key."</h3><br>";
+		
+		//Arrange site map accordingly and display it on browser.
+	endforeach;
 }
 }
 
 function makeCrawl($url){
+$images = null;
+$links = null;
 //We must enter http:// or https:// before the url, if it does not, then we check here
 //and write http if needed.
 if(substr($url, 0, 4) != 'http') $url = 'http://'.$url;
 //Create an object of class Crawler.
 $crawl = new Crawler($url);
 //Call the function get() with argument "images"
-$images = $crawl->get('images');
+if(is_array($crawl->get('images'))){
+$images = array_unique($crawl->get('images'));
+}
+if(is_array($crawl->get('links'))){
+$links  = array_unique($crawl->get('links'));
+}
+
+
+$dataArray['images'] = $images;
+$dataArray['hyperlinks']= $links;
+
+
 //Call the function get() with argument "links"
-$links  = $crawl->get('links');
+/*
 $i = 0;
 echo "<table cellpadding='5'>";
 echo "<tr><td id='title'>IMAGE LINKS</td></tr>";
@@ -116,7 +148,9 @@ if(!empty($links))
 }
 else echo "<tr><td>No Hyperlink!</td></tr>";
 echo "</table>";
+*/
 
+return $dataArray;
 }
 
 
