@@ -86,6 +86,7 @@ class Crawler
  
 if(isset($_POST['url']) && $_POST['url'] != '')
 {
+	include('csv.php');
 $url = $_POST['url'];
 //We must enter http:// or https:// before the url, if it does not, then we check here
 //and write http if needed.
@@ -106,7 +107,8 @@ if(!empty($links))
      $etst[$link] =  makeCrawl($link);//call function recursively to get all hyperlinks of website pages
     }
 
-	echo "<pre>";print_r($etst);die;
+	echo "<pre>";print_r($etst);
+	//$csv = convertToCsv($etst);
 	foreach($etst as $key=>$values):
 		//echo "<h3>Page Url: ".$key."</h3><br>";
 		
@@ -154,6 +156,35 @@ return $dataArray;
 
 function convertToString($array){
     $out = implode(",", $array) . "\r\n";
-return $out;
+	return $out;
 }
+
+/*function convertToCsv($data){
+	header('Content-Type: application/excel');
+	header('Content-Disposition: attachment; filename="sitemap.csv"');
+
+	$fp = fopen('sitemap.csv', 'w+');
+	chmod("sitemap.csv",777);
+	foreach ( $data as $line ) {
+		foreach($line as $l):
+		$val = explode(",", $l);
+		fputcsv($fp, $val);
+		endforeach;
+	}
+	fclose($fp);
+	
+}*/
+
+function convertToCsv($data){
+	$csv = new CSV(array('date', 'name', 'address'));
+	$csv->addRow(array('2/2/2010', 'John', 'Portland, OR'));
+ 
+        // export csv as a download
+        $filename = 'names';
+	$csv->export($filename);
+ 
+        // *or* pass the csv data to a variable as a string
+        $string = $csv;
+	
+	}
 ?>
