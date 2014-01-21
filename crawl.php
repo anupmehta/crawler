@@ -104,7 +104,6 @@ if(!empty($links))
       if($link[0] == "/") $link = $_POST['url'].$link;
       
      $etst[$link] =  makeCrawl($link);//call function recursively to get all hyperlinks of website pages
-     $etst[$link]['title'] = $title;
     }
 
 	echo "<pre>";print_r($etst);die;
@@ -130,10 +129,14 @@ $crawl = new Crawler($url);
 //Call the function get() with argument "images"
 if(is_array($crawl->get('images'))){
 	$images = array_unique($crawl->get('images'));
+	//echo "<pre>";
+	//print_r($images);die;
+	$images = convertToString($images );
 }
 //Call the function get() with argument "hyperlinks"
 if(is_array($crawl->get('links'))){
 	$links  = array_unique($crawl->get('links'));
+	$links =  convertToString($links );
 }
 
 //Call the function get() with argument "title"
@@ -149,5 +152,8 @@ $dataArray['hyperlinks']= $links;
 return $dataArray;
 }
 
-	
+function convertToString($array){
+    $out = implode(",", $array) . "\r\n";
+return $out;
+}
 ?>
